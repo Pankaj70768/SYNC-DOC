@@ -1,6 +1,8 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -92,9 +94,59 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    const token = jwt.sign(
+  {
+    id: user._id,
+    email: user.email
+  },
+  process.env.JWT_SECRET,
+  {
+    expiresIn: "1d"
+  }
+);
+
+res.json({
+  success: true,
+  message: "Login successful",
+  token,
+  user: {
+    id: user._id,
+    name: user.name,
+    email: user.email
+  }
+});
+  } catch (error) {
+    console.error("Login error:", error.message);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+});
+
+router.get("/profile", authMiddleware, (req, res) => {
+  res.json({
+    success: true,
+    message: "Protected route accessed successfully",
+    user: req.user
+  });
+});
+
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
     res.json({
       success: true,
-      message: "Login successful",
+      message: "User details fetched successfully",
       user: {
         id: user._id,
         name: user.name,
@@ -102,7 +154,7 @@ router.post("/login", async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Login error:", error.message);
+    console.error("Get user error:", error.message);
 
     res.status(500).json({
       success: false,
