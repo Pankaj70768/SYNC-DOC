@@ -20,6 +20,16 @@ const getDocumentById = async (documentId, owner) => {
 
   return document;
 };
+// Get all documents of an owner
+const getDocumentsByOwner = async (owner) => {
+  const documents = await Document.find({
+    owner
+  }).sort({
+    updatedAt: -1
+  });
+
+  return documents;
+};
 
 // Update a document
 const updateDocument = async (documentId, owner, updates) => {
@@ -47,10 +57,10 @@ const deleteDocument = async (documentId, owner) => {
 
   return document;
 };
-
 module.exports = {
   createDocument,
   getDocumentById,
+  getDocumentsByOwner,
   updateDocument,
   deleteDocument
 };

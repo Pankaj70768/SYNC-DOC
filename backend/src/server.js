@@ -6,6 +6,8 @@ const express = require("express");
 
 const authRoutes = require("./routes/authRoutes");
 
+const documentRoutes = require("./routes/documentRoutes");
+
 const app = express();
 
 connectDB();
@@ -13,6 +15,8 @@ connectDB();
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/documents", documentRoutes);
 
 app.get("/", (req, res) => {
   res.send("SYNC-DOC Backend is running!");
