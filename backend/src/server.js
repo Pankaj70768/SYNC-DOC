@@ -8,6 +8,15 @@ const authRoutes = require("./routes/authRoutes");
 
 const documentRoutes = require("./routes/documentRoutes");
 
+const http = require("http");
+
+const { Server } = require("socket.io");
+
+const {
+  authenticateSocket,
+  setupSocketHandlers
+} = require("./collaboration/socketService");
+
 const app = express();
 
 connectDB();
@@ -31,6 +40,20 @@ app.get("/api/health", (req, res) => {
 
 const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
+// Create HTTP server
+const server = http.createServer(app);
+
+// Create Socket.io server
+const io = new Server(server, {
+  cors: {
+    origin: "*"
+  }
+});
+
+io.use(authenticateSocket);
+
+setupSocketHandlers(io);
+
+server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
