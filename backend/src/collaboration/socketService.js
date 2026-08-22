@@ -32,6 +32,7 @@ const setupSocketHandlers = (io) => {
     console.log(`Authenticated user: ${socket.user.id}`);
 
     socket.on("join-document", async (documentId) => {
+     console.log(`join-document received: ${documentId}`);
       try {
         if (!documentId) {
           socket.emit("document-error", {
